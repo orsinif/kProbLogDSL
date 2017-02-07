@@ -30,9 +30,6 @@ for h5_file_name in args.h5files:
     print('=' * 80)
 
     C_list = [1]
-    C_list = np.logspace(-0.5, 0.5, 5)
-    
-    # C_list = np.logspace(-3, 3, 3)
 
     random_state = np.random.RandomState(123)
 
