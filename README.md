@@ -30,6 +30,13 @@ Launch a test:
 If you get a syntax error, you are probably using Python2.
 If some dependencies are missing make sure you installed them for Python3
 
+Launch kProbLog on QC
+    
+    $ python kproblog_qc.py | tee kproblog_qc.log
+check the results
+    
+    $ cat kproblog_qc.log | grep -e CONFIGURATION_SET -e EXTRACTION -e FINAL
+
 Launch kProbLog on MUTAG
     
     $ python kproblog_mutag.py

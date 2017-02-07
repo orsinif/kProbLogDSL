@@ -6,7 +6,7 @@ from kproblog.core import term_to_string
 from kproblog.experiments.common import feature_extraction, model_selection, split_in_blocks, VLABEL, ELABEL
 from kproblog.experiments.common import model_selection, extract_subset_parallel, SparseFeatures
 from kproblog.experiments.qc_io import one_pkl2dataset, Word2WL_Type
-from kproblog.semirings import VoidMonoid, PolynomialSemiring, SetMonoid, MultisetMonoidOfMonoids, Meta, ShortestPathSemiring
+from kproblog.semirings import VoidMonoid, PolynomialSemiring, SetMonoid, PolynomialSemiring, MultisetMonoidOfMonoids, Meta, ShortestPathSemiring
 from kproblog.semirings.utils import dict2symbol, sv_add, Obj2Id, nhash_m19, nhash_m13
 from kproblog.utils import TimeContext
 
@@ -16,7 +16,7 @@ import numpy as np
 import scipy.sparse as sp
 import signal
 
-N_JOBS = 16
+N_JOBS = 1
 
 word2wl_type = Word2WL_Type()
 
@@ -74,7 +74,7 @@ def vertex_to_labels_proc(label_dict:token_labels(V), info:meta) -> v2labels:
 @kproblog
 def bow_feat_block_proc(label_dict:token_labels(V), config_set:config) -> bow_features:
     block2feats = {}
-    for feat_type, params in config_set:
+    for (feat_type, params), in config_set:
         if feat_type != 'bow': continue
         bow_label_type, = params
         block2feats['bow', bow_label_type] = label_dict[bow_label_type]
@@ -103,7 +103,7 @@ def bow_feature_block_proc(feat_block:bow_features) -> feature_blocks:
 @kproblog # SHORTEST PATH BLOCKS
 def sp_features_block_proc(spath_value:spath(V, W), v2labels_dict:v2labels, config_set:config) -> feature_blocks:
     block2phi = defaultdict(lambda:defaultdict(float))
-    for block_type, params in config_set:
+    for (block_type, params), in config_set:
         if block_type != 'sp': continue
         use_dep_labels, label_type = params
         for path in spath_value.paths:
@@ -132,7 +132,7 @@ def final_features_proc(feat_dict:feature_blocks) -> final_features:
     acc = {}
     for _, feats in feat_dict.items():
         acc = sv_add(acc, feats)
-    return MultisetMonoid.rehash(acc, nhash_m19)
+    return PolynomialSemiring.rehash(acc, nhash_m19)
 
 def qc2facts(sentence_pkl_file_name):
     coarse_label, _fine_label, graph_list = one_pkl2dataset(sentence_pkl_file_name)
